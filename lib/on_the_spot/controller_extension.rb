@@ -22,7 +22,9 @@ module OnTheSpot
                 render :text => CGI::escapeHTML(object.send(field).to_s)
               else
                 parsed_data = JSON.parse(select_data.gsub("'", '"'))
-                render :text => parsed_data[object.send(field).to_s]
+                # render :text => parsed_data[object.send(field).to_s]
+                return_value = object.respond_to?("ots_#{field}") ? "ots_#{field}" : field
+                render :text => parsed_data[object.send(return_value).to_s]
               end
             else
               render :text => object.errors.full_messages.join("\n"), :status => 422
@@ -33,6 +35,6 @@ module OnTheSpot
         end
       end
     end
-    
+
   end
 end
