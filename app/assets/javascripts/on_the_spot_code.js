@@ -1,4 +1,6 @@
-$(document).ready(function() {
+
+function generalOnTheSpotInitializer() {
+    //console.log("Init-on-the-spot ...")
 
     $(".on_the_spot_editing").mouseover(function() {
 		$(this).addClass('on_the_spot_over');
@@ -6,9 +8,19 @@ $(document).ready(function() {
     $(".on_the_spot_editing").mouseout(function() {
 		$(this).removeClass('on_the_spot_over');
     });
-    $('.on_the_spot_editing').each(initializeOnTheSpot);
 
-});
+    $('.on_the_spot_editing').each(initializeOnTheSpot);
+}
+
+if (typeof Turbolinks == "undefined") {
+    $(function() {
+        generalOnTheSpotInitializer();
+    });
+} else {
+    $(document).on("turbolinks:load", generalOnTheSpotInitializer )
+}
+
+
 
 function initializeOnTheSpot(n){
     var el            = $(this),
@@ -17,6 +29,8 @@ function initializeOnTheSpot(n){
         ok_text       = el.attr('data-ok') || 'OK',
         cancel_text   = el.attr('data-cancel') || 'Cancel',
         tooltip_text  = el.attr('data-tooltip') || 'Click to edit ...',
+        form_css      = el.attr('data-form-css'),
+        input_css     = el.attr('data-input-css'),
         edit_type     = el.attr('data-edittype'),
         select_data   = el.attr('data-select'),
         rows          = el.attr('data-rows'),
@@ -24,6 +38,7 @@ function initializeOnTheSpot(n){
         load_url      = el.attr('data-loadurl'),
         selected      = el.attr('data-selected'),
         onblur_action = el.attr('data-onblur') || 'cancel',
+        method_name   = el.attr('data-display-method') || '',
         callback      = el.attr('data-callback');
 
 
@@ -32,6 +47,8 @@ function initializeOnTheSpot(n){
         placeholder: tooltip_text,
         cancel: cancel_text,
         submit: ok_text,
+        cssclass: form_css,
+        inputcssclass: input_css,
         select: selected,
         onerror: function (settings, original, xhr) {
             original.reset();
@@ -42,6 +59,7 @@ function initializeOnTheSpot(n){
         onblur: onblur_action,
         submitdata: {
           authenticity_token: auth_token,
+          display_method: method_name,
           _method: 'put'
         },
         callback: callback ? new Function("value", "settings", "return "+callback+"(this, value, settings);") : null

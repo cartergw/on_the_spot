@@ -20,25 +20,21 @@ module OnTheSpot
     #   selected     : (optional) boolean, text selected on edit
     #   callback     : (optional) a javascript function that is called after form has been submitted
     def on_the_spot_edit(object, field, options={})
-      #!!! to do: translate options to data-fields
-      # Possible fields:
-      #  type: textarea or not
-      #  button-translations ok-Text, cancel-Text
-      #
-
-
-
       options.reverse_merge!(:ok_text     => t('on_the_spot.ok'),
                              :cancel_text => t('on_the_spot.cancel'),
                              :tooltip     => t('on_the_spot.tooltip'),
+                             :form_css    => t('on_the_spot.form_css'),
+                             :input_css   => t('on_the_spot.input_css'),
                              :rows        => 5,
                              :columns     => 40,
                              :url         => {:action => 'update_attribute_on_the_spot'}
                             )
 
+      options[:url].merge!(:raw => true) if options[:raw]
       update_url = url_for(options[:url])
 
       field_value =  object.send(field.to_sym).to_s
+      field_value = field_value.html_safe if options[:raw]
 
       html_options = { :id => "#{object.class.name.underscore}__#{field}__#{object.id}",
                        :class => 'on_the_spot_editing',
@@ -52,21 +48,29 @@ module OnTheSpot
         raise OnTheSpotMissingParameters.new("Using type select needs either data or loadurl to function!") if select_data.nil?
         html_options[:'data-select']  = convert_array_to_json(select_data, field_value)
       elsif editable_type == :textarea
-        html_options[:'data-rows']      = options[:rows]
-        html_options[:'data-columns']   = options[:columns]
+        html_options[:'data-rows']         = options[:rows]
+        html_options[:'data-columns']      = options[:columns]
       end
-      html_options[:'data-ok']          = options[:ok_text]
-      html_options[:'data-cancel']      = options[:cancel_text]
-      html_options[:'data-tooltip']     = options[:tooltip]
-      html_options[:'data-auth']        = form_authenticity_token if defined? form_authenticity_token
-      html_options[:'data-selected']    = options[:selected]
-      html_options[:'data-callback']    = options[:callback]
-      html_options[:'data-onblur']      = options[:onblur] if options[:onblur] && ['cancel','submit', 'ignore'].include?(options[:onblur])
-      html_options[:'data-loadurl']     = options[:loadurl] unless options[:loadurl].nil?
+      html_options[:'data-ok']             = options[:ok_text]
+      html_options[:'data-cancel']         = options[:cancel_text]
+      html_options[:'data-tooltip']        = options[:tooltip]
+      html_options[:'data-auth']           = form_authenticity_token if defined? form_authenticity_token
+      html_options[:'data-selected']       = options[:selected]
+      html_options[:'data-callback']       = options[:callback]
+      html_options[:'data-onblur']         = options[:onblur] if options[:onblur] && ['cancel','submit', 'ignore'].include?(options[:onblur])
+      html_options[:'data-loadurl']        = options[:loadurl] unless options[:loadurl].nil?
+      html_options[:'data-display-method'] = options[:display_method] unless options[:display_method].nil?
+      html_options[:'data-form-css']       = options[:form_css] if options[:form_css].present?
+      html_options[:'data-input-css']      = options[:input_css] if options[:input_css].present?
+      if html_options[:'data-display-method'].present? && html_options[:'data-loadurl'].nil?
+        html_options[:'data-loadurl'] = url_for(:action => 'get_attribute_on_the_spot')
+      end
         
       content_tag("span", html_options) do
         if options[:display_text]
           options[:display_text]
+        elsif options[:display_method]
+          object.send(options[:display_method].to_sym).to_s
         elsif editable_type == :select && options[:loadurl].nil?
           lookup_display_value(select_data, field_value)
         else
@@ -81,11 +85,9 @@ module OnTheSpot
     end
 
     def convert_array_to_json(id_value_array, selected_id)
-      conv_arr = id_value_array.map{|idv| "'#{idv[0]}':'#{idv[1]}'" }
-      result = "{ #{conv_arr.join', '}"
-      result += ", 'selected':'#{ selected_id.to_s}'" unless selected_id.nil?
-      result += "}"
-      result
+      result = id_value_array.to_h
+      result['selected'] = selected_id unless selected_id.nil?
+      result.to_json
     end
 
   end

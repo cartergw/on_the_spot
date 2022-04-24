@@ -6,7 +6,7 @@ module OnTheSpot
 
       #def download_jeditable
       #  # Downloading latest jEditable
-      #  get "http://www.appelsiini.net/download/jquery.jeditable.mini.js", "public/javascripts/jquery.jeditable.mini.js"
+      #  get "http://www.appelsiini.net/download/jquery.jeditable.js", "public/javascripts/jquery.jeditable.mini.js"
       #end
 
       def copy_javascripts
@@ -14,13 +14,15 @@ module OnTheSpot
           #puts "The javascripts do not need to be installed since Rails 3.1"
         else
           copy_file "../../../../../app/assets/javascripts/on_the_spot_code.js", "public/javascripts/on_the_spot.js"
-          copy_file "../../../../../app/assets/javascripts/jquery.jeditable.mini.js", "public/javascripts/jquery.jeditable.mini.js"
+          copy_file "../../../../../app/assets/javascripts/jquery.jeditable.js", "public/javascripts/jquery.jeditable.js"
           copy_file "../../../../../app/assets/javascripts/jquery.jeditable.checkbox.js", "public/javascripts/jquery.jeditable.checkbox.js"
+          copy_file "../../../../../app/assets/stylesheets/on_the_spot.css", "public/stylesheets/on_the_spot.css"
         end
       end
 
       def copy_locales
         copy_file "on_the_spot.en.yml", "config/locales/on_the_spot.en.yml"
+        copy_file "on_the_spot.fr.yml", "config/locales/on_the_spot.fr.yml"
       end
 
     end

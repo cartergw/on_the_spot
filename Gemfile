@@ -2,11 +2,13 @@ source "http://rubygems.org"
 
 
 group :test do
-  gem "rake", '0.8.7'
-  gem "jeweler"
+  gem "rake"
+  # gem "jeweler"
+  gem "jeweler", git: 'git@github.com:technicalpickles/jeweler'
   gem "json_pure"
   gem "rspec",   ">= 2.6.0"
-  gem "rails", ">=3.0.9"
+  gem "rails", "~> 4.2.0"
+  gem 'test-unit-rails'
   gem "sqlite3-ruby", :require => "sqlite3"  #gem "rcov"
   gem "simplecov", :require => false
 
