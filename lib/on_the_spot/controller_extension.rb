@@ -17,7 +17,7 @@ module OnTheSpot
           is_allowed = check_acces_method.present? ? self.send(check_acces_method, object, field) : true
 
           if is_allowed
-            if object.update_attributes(field => params[:value])
+            if object.update(field => params[:value])
               if select_data.nil?
                 render :text => CGI::escapeHTML(object.send(field).to_s)
               else
@@ -33,6 +33,6 @@ module OnTheSpot
         end
       end
     end
-    
+
   end
 end
