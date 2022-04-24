@@ -24,7 +24,7 @@ module OnTheSpot
 
           if is_allowed
             saved = if klass.attribute_names.include?(field)
-                      object.update_attributes(field => params[:value])
+                      object.update(field => params[:value])
                     else
                       # calculated attribute?
                       object.send("#{field}=", params[:value])
@@ -69,6 +69,6 @@ module OnTheSpot
         end
       end
     end
-    
+
   end
 end
